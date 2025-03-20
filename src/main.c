@@ -1,5 +1,4 @@
-#include "raylib.h"
-#include "rcamera.h"
+#include "include/game.h"
 
 int main(void) {
   const int screenWidth = 800;
@@ -12,33 +11,42 @@ int main(void) {
   cam.up = (Vector3){0.0f, 1.0f, 0.0f};
   cam.fovy = 60.0f;
   cam.projection = CAMERA_PERSPECTIVE;
+  Model model = LoadModelFromMesh(GenChunk(8, 4));
   DisableCursor();
   while (!WindowShouldClose()) {
-    // Vector3 cam_mov = {0.0f, 0.0f, 0.0f};
+    Vector3 moveDir = {0};
     if(IsKeyDown(KEY_W)) {
-      cam.position.z += 1;
-      cam.target.z += 1;
+      moveDir.z += 1;
     }
     if(IsKeyDown(KEY_A)) {
-      cam.position.x -= 1;
-      cam.target.x -= 1;
+      moveDir.x -= 1;
     }
     if(IsKeyDown(KEY_S)) {
-      cam.position.z -= 1;
-      cam.target.z -= 1;
+      moveDir.z -= 1;
     }
     if(IsKeyDown(KEY_D)) {
-      cam.position.x += 1;
-      cam.target.x += 1;
+      moveDir.x += 1;
     }
-    // cam.target.x = cam.position.x;
-    // cam.target.z = cam.position.x + 2;
+    if(IsKeyDown(KEY_SPACE)) {
+      moveDir.y += 1;
+    }
+    if(IsKeyDown(KEY_LEFT_SHIFT)) {
+      moveDir.y -= 1;
+    }
+    moveDir = Vector3Normalize(moveDir);
+    cam.position = Vector3Add(cam.position, Vector3Scale(GetCameraForward(&cam), moveDir.z));
+    cam.position = Vector3Add(cam.position, Vector3Scale(GetCameraRight(&cam), moveDir.x));
+    cam.target = Vector3Add(cam.target, Vector3Scale(GetCameraForward(&cam), moveDir.z));
+    cam.target = Vector3Add(cam.target, Vector3Scale(GetCameraRight(&cam), moveDir.x));
+    cam.position.y += moveDir.y;
+    cam.target.y += moveDir.y;
     cam.up = (Vector3){0.0f, 1.0f, 0.0f};
     UpdateCamera(&cam, CAMERA_FIRST_PERSON);
     BeginDrawing();
       ClearBackground(RAYWHITE);
       BeginMode3D(cam);
-        DrawPlane((Vector3){0.0f, 0.0f, 0.0f}, (Vector2){10.0f, 10.0f}, GREEN);
+        DrawModel(model, Vector3Zero(), 1.0f, GREEN);
+        DrawCube(Vector3Zero(), 1, 1, 1, RED);
       EndMode3D();
       DrawText(TextFormat("Pos: (%06.3f, %06.3f, %06.3f)", cam.position.x, cam.position.y, cam.position.z), screenWidth - 300, 0, 16, BLACK);
       DrawText(TextFormat("Target: (%06.3f, %06.3f, %06.3f)", cam.target.x, cam.target.y, cam.target.z), screenWidth - 300, 50, 16, BLACK);

@@ -9,8 +9,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 # Cari library Raylib
 find_package(raylib REQUIRED)
 
+include_directories("src/include")
+
 # Kumpulkan semua file sumber dari folder src/
-file(GLOB SOURCES "src/*.c")
+file(GLOB_RECURSE SOURCES "src/*.c")
 
 # Buat executable
 add_executable(${PROJECT_NAME} ${SOURCES})
